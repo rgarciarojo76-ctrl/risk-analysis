@@ -111,7 +111,61 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
                         {renderOverlay()}
                     </>
                 ) : (
-                    // ... empty state ...
+                    <div className="upload-prompt">
+                        <Upload size={48} className="upload-icon" />
+                        <p>Arrastre imagen aquí o haga clic para subir</p>
+                        <span className="file-types">JPG, PNG</span>
+
+                        <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                            <button
+                                type="button"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    background: 'white',
+                                    color: '#2563eb',
+                                    border: '1px solid #2563eb',
+                                    padding: '8px 16px',
+                                    borderRadius: '20px',
+                                    cursor: 'pointer',
+                                    fontWeight: '500',
+                                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                                }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    document.getElementById('img_subida').click();
+                                }}
+                            >
+                                <Upload size={18} />
+                                Subir Archivo
+                            </button>
+
+                            <button
+                                type="button"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    background: '#2563eb',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '8px 16px',
+                                    borderRadius: '20px',
+                                    cursor: 'pointer',
+                                    fontWeight: '500',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    document.getElementById('camera_input').click();
+                                }}
+                            >
+                                <Camera size={18} />
+                                Usar Cámara
+                            </button>
+                        </div>
+                    </div>
                 )}
 
                 {/* ... inputs ... */}
@@ -334,6 +388,61 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
             </button>
         </div>
     );
+};
+
+<input
+    type="file"
+    id="img_subida"
+    accept="image/png, image/jpeg"
+    onChange={handleChange}
+    className="file-input"
+/>
+
+{/* Dedicated Camera Input */ }
+<input
+    type="file"
+    id="camera_input"
+    accept="image/*"
+    capture="environment"
+    onChange={handleChange}
+    style={{ display: 'none' }}
+/>
+
+{
+    preview && (
+        <button
+            className="change-image-btn"
+            onClick={(e) => {
+                e.stopPropagation();
+                document.getElementById('img_subida').click();
+            }}
+        >
+            Cambiar imagen
+        </button>
+    )
+}
+        </div >
+
+    <button
+        id="btn_analizar"
+        className={`analyze-btn ${!preview ? 'disabled' : ''}`}
+        onClick={handleAnalyze}
+        disabled={!preview || isAnalyzeLoading}
+    >
+        {isAnalyzeLoading ? (
+            <>
+                <Loader2 className="spinner" size={18} />
+                Analizando...
+            </>
+        ) : (
+            <>
+                <Camera size={18} />
+                Analizar Imagen
+            </>
+        )}
+    </button>
+    </div >
+);
 };
 
 export default ImageUploader;
