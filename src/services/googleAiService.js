@@ -14,7 +14,9 @@ Para cada riesgo detectado, debes proporcionar:
 6. Severidad: Baja, Media o Alta.
 7. Grado de riesgo: Trivial, Tolerable, Moderado, Importante o Intolerable.
 8. Plazo: Tiempo estimado para subsanar (ej: Inmediato, 1 mes, 6 meses).
-9. Coste estimado: Rango de coste (ej: < 100€, 100-500€, > 500€).
+10. Coordenadas: Array [ymin, xmin, ymax, xmax] normalizado a 1000 del área donde se encuentra el riesgo en la imagen.
+    - Ejemplo: [0, 0, 500, 500] sería el cuadrante superior izquierdo.
+    - IMPORTANTE: Debes localizar visualmente dónde está el peligro.
 
 También debes generar un "dalle_prompt" (en inglés) para RECONSTRUIR la escena ("Digital Twin").
 Como la API no acepta la foto original, debes DESCRIBIRLA con precisión forense.
@@ -39,7 +41,8 @@ IMPORTANTE: Responde ÚNICAMENTE con un objeto JSON válido con la siguiente est
       "severidad": "...",
       "grado_riesgo": "...",
       "plazo": "...",
-      "coste_estimado": "..."
+      "coste_estimado": "...",
+      "coordinates": [ymin, xmin, ymax, xmax] // Coordenadas 2D (0-1000) del rectángulo que encierra el riesgo
     }
   ],
   "dalle_prompt": "..."

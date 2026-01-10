@@ -193,3 +193,30 @@
     /* No filter needed - Real Imagen 4 Generation active */
     filter: none;
 }
+
+/* New Logic for Risk Overlay */
+.image-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.risk-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* Let clicks pass through */
+    z-index: 10;
+}
+
+.header-actions {
+    margin-left: auto;
+}
+
+.icon-btn.active {
+    background-color: var(--color-primary);
+    color: white;
+}
