@@ -13,20 +13,32 @@ export default async function handler(req, res) {
             throw new Error('Server misconfiguration: API Key not found');
         }
 
-        const { prompt } = req.body;
+        const { prompt, imageBase64 } = req.body;
 
-        // Use Imagen 4 Ultra via Google Generative Language API (Requires Billing)
+        // Use Imagen 4 Ultra via Google Generative Language API
         const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-ultra-generate-001:predict?key=${apiKey}`;
+
+        const requestBody = {
+            instances: [
+                {
+                    prompt: `Photorealistic industrial safety visualization, high quality, 4k: ${prompt}`,
+                    image: {
+                        bytesBase64Encoded: imageBase64
+                    }
+                }
+            ],
+            parameters: {
+                sampleCount: 1,
+                // "editMode": "product-image" // Optional parameter for stronger adherence if supported
+            }
+        };
 
         const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                instances: [{ prompt: `Photorealistic industrial safety visualization, high quality, 4k: ${prompt}` }],
-                parameters: { sampleCount: 1 }
-            })
+            body: JSON.stringify(requestBody)
         });
 
         if (!response.ok) {

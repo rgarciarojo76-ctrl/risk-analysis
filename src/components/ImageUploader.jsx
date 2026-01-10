@@ -62,12 +62,25 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete }) => {
             const analysisData = await analyzeImageWithGemini(blob, null);
             resultRisks = analysisData.risks;
 
-            // 2. Image Generation: Real Imagen Check
+            // 2. Image Generation: Real Imagen Check (Image-to-Image)
             if (analysisData.dalle_prompt) {
                 const { generateImageWithImagen } = await import('../services/googleAiService');
                 console.log("Generating buffer image with Imagen 3...");
+
+                // reuse base64 data from analysisStep
+                // We need to re-read the blob to base64 or reuse 'preview' if it was base64...
+                // Actually 'preview' is a Blob URL.
+                // We already have 'blob' from response.blob(). Let's read it.
+
+                const base64Promise = new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                    reader.readAsDataURL(blob);
+                });
+                const imageBase64 = await base64Promise;
+
                 try {
-                    afterImageUrl = await generateImageWithImagen(analysisData.dalle_prompt, null);
+                    afterImageUrl = await generateImageWithImagen(analysisData.dalle_prompt, null, imageBase64);
                 } catch (genError) {
                     console.warn("Imagen generation failed, falling back to original:", genError);
                     afterImageUrl = preview;

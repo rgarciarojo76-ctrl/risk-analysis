@@ -120,12 +120,12 @@ Responde ÚNICAMENTE con un objeto JSON válido:
     }
 };
 
-export const generateImageWithImagen = async (prompt, apiKey) => {
+export const generateImageWithImagen = async (prompt, apiKey, imageBase64) => {
     try {
         const response = await fetch('/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt })
+            body: JSON.stringify({ prompt, imageBase64 })
         });
 
         if (!response.ok) {
