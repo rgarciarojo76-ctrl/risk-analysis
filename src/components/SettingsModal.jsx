@@ -26,22 +26,19 @@ const SettingsModal = ({ isOpen, onClose }) => {
                     <button onClick={onClose} className="close-btn"><X size={20} /></button>
                 </div>
                 <div className="modal-body">
-                    <p>Para usar el análisis real con Gemini 1.5 Pro, introduce tu API Key de Google AI.</p>
-                    <div className="input-group">
-                        <Key size={16} className="input-icon" />
-                        <input
-                            type="password"
-                            placeholder="Introduce tu Google AI Key..."
-                            value={apiKey}
-                            onChange={(e) => setApiKey(e.target.value)}
-                        />
+                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                        <div style={{ background: '#ecfdf5', color: '#047857', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+                            <strong>✅ API Gestionada por el Servidor</strong>
+                        </div>
+                        <p style={{ fontSize: '0.9rem', color: '#666' }}>
+                            Por seguridad, la clave API ya no se guarda en el navegador.
+                            <br /><br />
+                            Está configurada en las <strong>Variables de Entorno</strong> de Vercel (`GOOGLE_GEMINI_API_KEY`).
+                        </p>
                     </div>
-                    <p className="note">Puedes obtener tu clave en <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer">Google AI Studio</a>. Se guarda localmente en su navegador.</p>
                 </div>
                 <div className="modal-footer">
-                    <button onClick={handleSave} className="save-btn">
-                        <Save size={16} /> Guardar
-                    </button>
+                    {/* No Save Action Needed */}
                 </div>
             </div>
         </div>

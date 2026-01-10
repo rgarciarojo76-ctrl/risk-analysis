@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+// import { GoogleGenerativeAI } from "@google/generative-ai"; // Removed - Backend only
 
 const SYSTEM_PROMPT = `
 Actúa como herramienta de apoyo y contraste técnico para un Técnico Superior en Prevención de Riesgos Laborales.
@@ -18,11 +18,13 @@ Para cada riesgo detectado, debes proporcionar:
 
 También debes generar un "dalle_prompt" (en inglés) que describa VISUALMENTE la escena para que una IA pueda redibujarla.
 CRITERIOS OBLIGATORIOS PARA LA GENERACIÓN (dalle_prompt):
-1. FIDELIDAD ABSOLUTA: Mantén exactamente el mismo encuadre, perspectiva, iluminación y personas (misma postura/posición). NO alteres la escena base.
-2. CAMBIOS PERMITIDOS: Solo introduce protecciones colectivas (barandillas, resguardos), señalización, orden/limpieza y EPIs.
-3. PROHIBICIONES: NO inventes riesgos, NO añadas señales redundantes, NO cambies el trabajo realizado.
-4. RESULTADO: La imagen debe ser fotorealista, técnica y juridicamente defendible.
-El prompt debe ser extremadamente detallado en inglés, empezando con "Photo of..." y describiendo primero la escena original estática y luego las mejoras de seguridad aplicadas sutilmente.
+1. FIDELIDAD ABSOLUTA DE PERSPECTIVA: La imagen generada DEBE ENCAJAR PERFECTAMENTE sobre la original. NO cambies el ángulo, ni el "focal length", ni el encuadre.
+2. NORMATIVA SEÑALIZACIÓN: Toda señal debe cumplir estrictamente la norma UNE 23033 / ISO 7010 (España). Colores y pictogramas exactos.
+3. CAMBIOS PERMITIDOS: Solo introduce protecciones y correcciones.
+4. PROHIBICIONES: NO cambies la geometría de la sala. NO cambies la iluminación global.
+5. APARIENCIA: Debe parecer una FOTO EDITADA, no una generada de cero.
+El prompt debe empezar con "Exact replica of industrial scene..." y detallar: "Camera fixed at [x] height", "Walls at [x] angle".
+IMPORTANTE: Describe la imagen como si fueras un topógrafo. La geometría es sagrada.
 IMPORTANTE: Responde ÚNICAMENTE con un objeto JSON válido con la siguiente estructura:
 {
   "risks": [
@@ -43,43 +45,41 @@ IMPORTANTE: Responde ÚNICAMENTE con un objeto JSON válido con la siguiente est
 }
 `;
 
+
+// Note: apiKey is no longer used on frontend, but kept in signature to avoid breaking component calls immediately
 export const analyzeImageWithGemini = async (imageFile, apiKey) => {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-    // Convert file to generative part
-    const fileToGenerativePart = async (file) => {
-        const base64EncodedDataPromise = new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result.split(',')[1]);
-            reader.readAsDataURL(file);
-        });
-        return {
-            inlineData: { data: await base64EncodedDataPromise, mimeType: file.type },
-        };
-    };
-
-    const imagePart = await fileToGenerativePart(imageFile);
+    // Convert file to base64
+    const base64Promise = new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+        reader.readAsDataURL(imageFile);
+    });
+    const base64Data = await base64Promise;
 
     try {
-        const result = await model.generateContent([SYSTEM_PROMPT, imagePart]);
-        const response = await result.response;
-        let text = response.text();
+        const response = await fetch('/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                systemPrompt: SYSTEM_PROMPT,
+                imageBase64: base64Data,
+                mimeType: imageFile.type
+            })
+        });
 
-        // Clean markdown code blocks if present
-        text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server Error: ${errorText}`);
+        }
 
-        return JSON.parse(text);
+        return await response.json();
     } catch (error) {
-        console.error("Error calling Gemini:", error);
+        console.error("Error calling Backend Analyze:", error);
         throw error;
     }
 };
 
 export const expandManualRiskWithGemini = async (riskDescription, apiKey) => {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
     const prompt = `
 Eres un experto en Prevención de Riesgos Laborales (PRL). 
 El usuario te proporcionará una breve descripción de un factor de riesgo detectado manualmente. 
@@ -103,42 +103,40 @@ Responde ÚNICAMENTE con un objeto JSON válido:
 `;
 
     try {
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        let text = response.text();
+        const response = await fetch('/api/expand', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt })
+        });
 
-        text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+        if (!response.ok) {
+            throw new Error('Backend Expand Failed');
+        }
 
-        return JSON.parse(text);
+        return await response.json();
     } catch (error) {
-        console.error("Error expanding risk with Gemini:", error);
+        console.error("Error calling Backend Expand:", error);
         throw error;
     }
 };
 
 export const generateImageWithImagen = async (prompt, apiKey) => {
-    // Use Imagen 4 Ultra via Google Generative Language API (Requires Billing)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-ultra-generate-001:predict?key=${apiKey}`;
+    try {
+        const response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt })
+        });
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            instances: [{ prompt: `Photorealistic industrial safety visualization, high quality, 4k: ${prompt}` }],
-            parameters: { sampleCount: 1 }
-        })
-    });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Backend Generate Failed');
+        }
 
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Imagen API failed');
+        const data = await response.json();
+        return data.image; // Base64 image
+    } catch (error) {
+        console.error("Error calling Backend Generate:", error);
+        throw error;
     }
-
-    const data = await response.json();
-    if (data.predictions && data.predictions[0]?.bytesBase64Encoded) {
-        return `data:image/jpeg;base64,${data.predictions[0].bytesBase64Encoded}`;
-    }
-    throw new Error('No image generated');
 };
