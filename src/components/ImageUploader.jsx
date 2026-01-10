@@ -3,55 +3,7 @@ import { Upload, Camera, Loader2 } from 'lucide-react';
 import './ImageUploader.css';
 
 // Mock function to simulate AI Analysis
-const mockAnalyzeImage = async (file) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                risks: [
-                    {
-                        id: 1,
-                        factor: "Ausencia de resguardo en transmisión",
-                        evidencia: "Sistema de transmisión por correa y polea accesible sin herramienta.",
-                        medida: "Instalación de resguardo fijo envolvente que impida el acceso a la zona de peligro.",
-                        fuente: "RD 1215/1997, Anexo I, 1.8",
-                        probabilidad: "Alta",
-                        severidad: "Alta",
-                        grado_riesgo: "Importante",
-                        plazo: "Inmediato",
-                        coste_estimado: "100-500€"
-                    },
-                    {
-                        id: 2,
-                        factor: "Almacenamiento inadecuado en altura",
-                        evidencia: "Palets remontados sin sistema de retención visible y con desplome lateral.",
-                        medida: "Uso de estanterías certificadas o apilamiento estable con sistema de flejado.",
-                        fuente: "NTP 298: Almacenamiento en estanterías",
-                        probabilidad: "Media",
-                        severidad: "Alta",
-                        grado_riesgo: "Moderado",
-                        plazo: "1 mes",
-                        coste_estimado: "> 500€"
-                    },
-                    {
-                        id: 3,
-                        factor: "Señalización de extinción no visible",
-                        evidencia: "Extintor obstaculizado por material de embalaje, no visible desde vía de evacuación.",
-                        medida: "Reubicación de extintor y señalización fotoluminiscente a altura reglamentaria.",
-                        fuente: "RD 513/2017 (RIPCI) y Guía Técnica RD 486/1997",
-                        probabilidad: "Media",
-                        severidad: "Media",
-                        grado_riesgo: "Tolerable",
-                        plazo: "1 semana",
-                        coste_estimado: "< 100€"
-                    }
-                ],
-                // For 'After' image, we simulate a 'processed' version.
-                // In a real app this comes from the generation API.
-                afterImage: URL.createObjectURL(file)
-            });
-        }, 2000); // 2 second delay
-    });
-};
+
 
 const ImageUploader = ({ setUploadedImage, onAnalysisComplete }) => {
     const [preview, setPreview] = useState(null);
@@ -97,40 +49,28 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete }) => {
         if (!preview) return;
         setIsAnalyzeLoading(true);
         try {
-            const googleKey = localStorage.getItem('google_gemini_api_key');
-            let resultRisks;
-            let afterImageUrl = preview;
+            // ALWAYS use Server-Side API (Key is in Vercel Env Vars)
+            const response = await fetch(preview);
+            const blob = await response.blob();
 
-            if (googleKey && googleKey.length > 20) {
-                // Real Analysis with Gemini
-                const response = await fetch(preview);
-                const blob = await response.blob();
+            // 1. Analyze Image with Gemini
+            const { analyzeImageWithGemini } = await import('../services/googleAiService');
+            // We pass 'null' for apiKey because it's handled on the backend now
+            const analysisData = await analyzeImageWithGemini(blob, null);
+            resultRisks = analysisData.risks;
 
-                // 1. Analyze Image with Gemini
-                const { analyzeImageWithGemini } = await import('../services/googleAiService');
-                const analysisData = await analyzeImageWithGemini(blob, googleKey);
-                resultRisks = analysisData.risks;
-
-                // 2. Image Generation: Real Imagen 4 Check
-                if (analysisData.dalle_prompt) {
-                    const { generateImageWithImagen } = await import('../services/googleAiService');
-                    console.log("Generating buffer image with Imagen 4...");
-                    try {
-                        afterImageUrl = await generateImageWithImagen(analysisData.dalle_prompt, googleKey);
-                    } catch (genError) {
-                        console.warn("Imagen generation failed, falling back to original:", genError);
-                        afterImageUrl = preview;
-                    }
-                } else {
+            // 2. Image Generation: Real Imagen Check
+            if (analysisData.dalle_prompt) {
+                const { generateImageWithImagen } = await import('../services/googleAiService');
+                console.log("Generating buffer image with Imagen 3...");
+                try {
+                    afterImageUrl = await generateImageWithImagen(analysisData.dalle_prompt, null);
+                } catch (genError) {
+                    console.warn("Imagen generation failed, falling back to original:", genError);
                     afterImageUrl = preview;
                 }
             } else {
-                // Mock Analysis (Fallback)
-                const response = await fetch(preview);
-                const blob = await response.blob();
-                const mockResult = await mockAnalyzeImage(blob);
-                resultRisks = mockResult.risks;
-                afterImageUrl = mockResult.afterImage;
+                afterImageUrl = preview;
             }
 
             onAnalysisComplete({
