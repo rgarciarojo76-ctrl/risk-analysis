@@ -40,6 +40,13 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
                     const cy = ymin + height / 2;
 
                     return (
+                    // Clamp label position to be within image bounds (with padding)
+                    // Radius is 40, so padding should be at least 45 to keep circle inside
+                    const PADDING = 45;
+                    const labelX = Math.max(PADDING, Math.min(1000 - PADDING, xmin));
+                    const labelY = Math.max(PADDING, Math.min(1000 - PADDING, ymin));
+
+                    return (
                         <g key={risk.id}>
                             <ellipse
                                 cx={cx}
@@ -50,10 +57,10 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
                                 strokeWidth="8"
                                 fill="rgba(239, 68, 68, 0.1)"
                             />
-                            <circle cx={xmin} cy={ymin} r="40" fill="#ef4444" />
+                            <circle cx={labelX} cy={labelY} r="40" fill="#ef4444" />
                             <text
-                                x={xmin}
-                                y={ymin}
+                                x={labelX}
+                                y={labelY}
                                 dy="12"
                                 textAnchor="middle"
                                 fill="white"
@@ -63,6 +70,7 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
                                 {risk.id}
                             </text>
                         </g>
+                    );
                     );
                 })}
             </svg>
