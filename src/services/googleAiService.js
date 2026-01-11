@@ -23,6 +23,7 @@ ESTRUCTURA DEL PROMPT:
 5. "SAFETY INTERVENTIONS": Describe SOLO lo que cambia por seguridad (Señales, barandillas, EPIs).
    - "NEW: [Elemento] installed at [Posición]."
    - "MODIFIED: [Elemento antiguo] replaced solely by [Elemento nuevo]."
+   - "MANDATORY: Safety signage MUST follow UNE 23033 / ISO 7010 standards (Green/White for emergency, Red/White for prohibition/fire, Yellow/Black for warning). NO generic text signs."
 
 REGLAS DE INTERVENCIÓN (Digital Twin):
 - Encuadre, perspectiva y arquitectura: INTOCABLES.
