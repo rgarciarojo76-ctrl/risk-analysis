@@ -56,9 +56,8 @@
 }
 
 .preview-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+    /* width/height controlled by inline styles for aspect ratio fix */
+    border-radius: 4px;
 }
 
 .change-image-btn {

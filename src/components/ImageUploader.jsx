@@ -206,10 +206,23 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
                 style={{ position: 'relative' }} // Ensure overlay positioning context
             >
                 {preview ? (
-                    <>
-                        <img src={preview} alt="Vista previa" className="preview-image" id="img_subida_preview" />
+                    <div className="image-wrapper" style={{ position: 'relative', width: 'fit-content', height: 'fit-content', maxWidth: '100%', maxHeight: '100%', display: 'flex' }}>
+                        <img
+                            src={preview}
+                            alt="Vista previa"
+                            className="preview-image"
+                            id="img_subida_preview"
+                            style={{
+                                width: 'auto',
+                                height: 'auto',
+                                maxWidth: '100%',
+                                maxHeight: '100%',
+                                objectFit: 'contain',
+                                display: 'block'
+                            }}
+                        />
                         {renderOverlay()}
-                    </>
+                    </div>
                 ) : (
                     <div className="upload-prompt">
                         <Upload size={48} className="upload-icon" />
