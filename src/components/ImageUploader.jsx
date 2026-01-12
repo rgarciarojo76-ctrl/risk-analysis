@@ -236,7 +236,6 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
                                 height: 'auto',
                                 maxWidth: '100%',
                                 maxHeight: '100%',
-                                objectFit: 'contain',
                                 display: 'block'
                             }}
                         />
