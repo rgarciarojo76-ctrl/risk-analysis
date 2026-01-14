@@ -1,0 +1,100 @@
+.assessment-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 24px;
+    margin-bottom: 24px;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    max-width: 1000px;
+    /* Ajustable */
+    margin: 0 auto;
+}
+
+.assess-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #0099CC;
+    /* Azul ASPY */
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+
+.assess-title {
+    margin: 0;
+    color: #005580;
+    /* Azul oscuro */
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.assess-badge {
+    background-color: #f0f9ff;
+    color: #0284c7;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #bae6fd;
+}
+
+.assess-content-box {
+    background-color: #f8fdff;
+    /* Fondo muy suave */
+    border-left: 5px solid #0099CC;
+    /* Borde izquierdo marcado */
+    border-radius: 0 8px 8px 0;
+    padding: 20px;
+}
+
+.assess-subtitle {
+    margin-top: 0;
+    color: #0c4a6e;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* La Magia: Grid Responsive */
+.assess-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    /* Mínimo 400px por columna */
+    gap: 16px 32px;
+    /* Espacio vertical y horizontal */
+}
+
+.assess-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 1rem;
+    color: #334155;
+    padding: 8px 0;
+    border-bottom: 1px dashed #e2e8f0;
+    /* Separador sutil */
+}
+
+.assess-item:last-child {
+    border-bottom: none;
+}
+
+.item-label {
+    font-weight: 700;
+    color: #0f172a;
+    white-space: nowrap;
+    /* Evita que la etiqueta se parta */
+}
+
+@media (max-width: 600px) {
+    .assess-grid {
+        grid-template-columns: 1fr;
+        /* 1 columna en móvil */
+    }
+}
