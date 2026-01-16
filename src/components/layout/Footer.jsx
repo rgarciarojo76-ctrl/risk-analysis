@@ -10,7 +10,7 @@ const Footer = () => {
             borderTop: '1px solid #e2e8f0',
             marginTop: 'auto'
         }}>
-            <p>© 2026 ASPY Prevención - Innovation Lab. Todos los derechos reservados.</p>
+            <p>© 2026 Dirección Técnica - Innovation Lab. Todos los derechos reservados.</p>
         </footer>
     );
 };

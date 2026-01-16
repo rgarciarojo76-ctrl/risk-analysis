@@ -153,7 +153,7 @@ export const generatePDFReport = async (risks, beforeImage, afterImage) => {
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(8);
         doc.text("aspyprevencion.com", margin, pageHeight - 10);
-        doc.text("Gestiona ágilmente la prevención de riesgos desde la app web de ASPY.", pageWidth / 2, pageHeight - 8, { align: 'center' });
+        doc.text("Gestiona ágilmente la prevención de riesgos desde la app web de Dirección Técnica.", pageWidth / 2, pageHeight - 8, { align: 'center' });
         doc.text(`${i} / ${totalPages}`, pageWidth - margin, pageHeight - 10);
     }
 

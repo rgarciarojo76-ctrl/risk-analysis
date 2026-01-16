@@ -5,9 +5,9 @@ const Header = ({ onOpenSettings, onExport }) => {
     return (
         <header className="dashboard-header">
             <div className="brand-section">
-                <img src="/aspy_logo.png" alt="ASPY Logo" className="brand-logo" />
+                <img src="/logo-direccion-tecnica.jpg" alt="Dirección Técnica Logo" className="brand-logo" />
                 <div className="brand-info">
-                    <h1>ASPY AI LAB</h1>
+                    <h1>DIRECCIÓN TÉCNICA IA LAB</h1>
                     <span className="brand-subtitle">App: Análisis de Imágenes – Riesgos PRL</span>
                 </div>
             </div>
