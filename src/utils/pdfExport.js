@@ -26,7 +26,7 @@ export const generatePDFReport = async (risks, beforeImage, afterImage) => {
     const margin = 15;
 
     // Load images
-    const logoBase64 = await getBase64FromUrl('/aspy_logo.png');
+    const logoBase64 = await getBase64FromUrl('/logo-pdf.jpg');
     const beforeBase64 = beforeImage ? await getBase64FromUrl(beforeImage) : null;
     const afterBase64 = afterImage ? await getBase64FromUrl(afterImage) : null;
 
@@ -152,10 +152,10 @@ export const generatePDFReport = async (risks, beforeImage, afterImage) => {
 
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(8);
-        doc.text("aspyprevencion.com", margin, pageHeight - 10);
+        // doc.text("aspyprevencion.com", margin, pageHeight - 10);
         doc.text("Gestiona ágilmente la prevención de riesgos desde la app web de Dirección Técnica.", pageWidth / 2, pageHeight - 8, { align: 'center' });
         doc.text(`${i} / ${totalPages}`, pageWidth - margin, pageHeight - 10);
     }
 
-    doc.save("informe_resumen_aspy.pdf");
+    doc.save("informe_direccion_tecnica.pdf");
 };
