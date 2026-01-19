@@ -34,7 +34,7 @@ export default async function handler(req, res) {
         // --- END VALIDATION ---
 
         // Use Imagen 4 Ultra via Google Generative Language API
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-ultra-generate-001:predict?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`;
 
         const requestBody = {
             instances: [
