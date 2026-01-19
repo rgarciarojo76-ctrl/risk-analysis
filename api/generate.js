@@ -33,10 +33,11 @@ export default async function handler(req, res) {
         }
         // --- END VALIDATION ---
 
-        // Use Imagen 4 Ultra via Google Generative Language API
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${apiKey}`;
+        // Use Imagen 4 Standard via Google Generative Language API
+        // Try with image first, if fails (e.g. not supported for user tier), fallback to text-only
+        let currentUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
 
-        const requestBody = {
+        let currentRequestBody = {
             instances: [
                 {
                     prompt: `Photorealistic industrial safety visualization, high quality, 4k: ${prompt}`,
@@ -45,27 +46,48 @@ export default async function handler(req, res) {
             ],
             parameters: {
                 sampleCount: 1,
-                aspectRatio: "4:3" // Match roughly typical photo aspect
+                aspectRatio: "4:3"
             }
         };
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestBody)
-        });
+        const makeRequest = async (url, body) => {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) {
+                const errData = await res.json();
+                throw { status: res.status, data: errData };
+            }
+            return res.json();
+        };
 
-        if (!response.ok) {
-            // Log full error for admin, show generic to user
-            const errorData = await response.json();
-            console.error('Imagen API Error:', errorData);
-            const errorMessage = errorData.error?.message || JSON.stringify(errorData);
-            throw new Error(`Imagen API Failed: ${errorMessage}`);
+        let data;
+        try {
+            data = await makeRequest(currentUrl, currentRequestBody);
+        } catch (firstError) {
+            console.warn("First attempt (Image-to-Image) failed:", firstError.data?.error?.message);
+
+            // Fallback: If error relates to "Image in input is not supported" or similar 400/404, try text-only
+            if (imageBase64) {
+                console.log("Retrying with Text-to-Image fallback...");
+                currentRequestBody.instances[0].image = undefined; // Remove image
+                // Optional: Slightly adjust prompt to be more descriptive since we lost the reference image
+                currentRequestBody.instances[0].prompt = `Industrial safety scene, high quality, 4k. Context: ${prompt}`;
+
+                try {
+                    data = await makeRequest(currentUrl, currentRequestBody);
+                } catch (secondError) {
+                    console.error('Fallback (Text-to-Image) also failed:', secondError.data);
+                    const errorMessage = secondError.data?.error?.message || JSON.stringify(secondError.data);
+                    throw new Error(`Imagen API Failed (Fallback): ${errorMessage}`);
+                }
+            } else {
+                const errorMessage = firstError.data?.error?.message || JSON.stringify(firstError.data);
+                throw new Error(`Imagen API Failed: ${errorMessage}`);
+            }
         }
-
-        const data = await response.json();
 
         if (data.predictions && data.predictions[0]?.bytesBase64Encoded) {
             const base64Image = `data:image/jpeg;base64,${data.predictions[0].bytesBase64Encoded}`;
