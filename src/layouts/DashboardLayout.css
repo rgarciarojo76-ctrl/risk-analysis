@@ -58,9 +58,10 @@
 
 .status-section {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.25rem;
+    flex-direction: row;
+    /* Horizontal alignment for better integration */
+    align-items: center;
+    gap: 1rem;
     margin-right: 2rem;
 }
 
@@ -76,17 +77,16 @@
 
 .status-disclaimer {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 0.75rem;
-    background: #fefce8;
-    /* Amber 50 */
-    border-left: 4px solid #eab308;
-    /* Amber 500 */
-    padding: 0.5rem 0.75rem;
-    border-radius: 0 4px 4px 0;
-    box-shadow: var(--shadow-sm);
-    max-width: 400px;
-    margin-top: 0.25rem;
+    background: linear-gradient(to right, #fffbeb, #fefce8);
+    border: 1px solid #fde68a;
+    padding: 0.4rem 1rem;
+    border-radius: 99px;
+    /* Pill shape */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    max-width: fit-content;
+    margin-top: 0;
 }
 
 .disclaimer-icon {
@@ -112,9 +112,10 @@
 }
 
 .disclaimer-body {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     color: #92400e;
     /* Amber 800 */
+    font-weight: 500;
 }
 
 .dashboard-grid {
@@ -280,6 +281,8 @@
         width: 100%;
         order: 3;
         /* Move status below on very small screens if needed, or keep as is */
+        flex-wrap: wrap;
+        justify-content: flex-start;
     }
 
     .status-disclaimer {
