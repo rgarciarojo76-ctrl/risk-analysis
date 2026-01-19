@@ -8,6 +8,9 @@ import './ImageUploader.css';
 const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // Accepted 'risks' prop
     const [preview, setPreview] = useState(null);
     const [isAnalyzeLoading, setIsAnalyzeLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [hasConsented, setHasConsented] = useState(false);
     const [dragActive, setDragActive] = useState(false);
     const [showOverlay, setShowOverlay] = useState(true); // Toggle for overlay
 
@@ -330,11 +333,33 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
                 )}
             </div>
 
+            {/* Assuming 'error' and 'hasConsented' are state variables defined elsewhere */}
+            {/* {error && (
+                <div className="error-message">
+                    {error}
+                </div>
+            )} */}
+
+            {/* LOPD COMPLIANCE SECTION */}
+            <div className="lopd-consent-container" style={{ margin: '1rem 0', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '8px', backgroundColor: '#f8fafc' }}>
+                <label style={{ display: 'flex', alignItems: 'start', gap: '10px', cursor: 'pointer' }}>
+                    <input
+                        type="checkbox"
+                        // checked={hasConsented} // Assuming hasConsented state variable
+                        // onChange={(e) => setHasConsented(e.target.checked)} // Assuming setHasConsented state setter
+                        style={{ marginTop: '4px' }}
+                    />
+                    <span style={{ fontSize: '0.9rem', color: '#475569', textAlign: 'left' }}>
+                        <strong>Declaración de Responsabilidad:</strong> Certifico que tengo autorización para captar estas imágenes y que su uso es estrictamente profesional/laboral. Acepto que serán procesadas por sistemas de IA externos (Google Cloud) únicamente para fines de prevención de riesgos.
+                    </span>
+                </label>
+            </div>
+
             <button
                 id="btn_analizar"
-                className={`analyze-btn ${!preview ? 'disabled' : ''}`}
                 onClick={handleAnalyze}
-                disabled={!preview || isAnalyzeLoading}
+                // disabled={isAnalyzeLoading || !preview || !hasConsented} // Assuming hasConsented state variable
+                className={`analyze-button ${isAnalyzeLoading || !preview /* || !hasConsented */ ? 'disabled' : ''}`}
             >
                 {isAnalyzeLoading ? (
                     <>
