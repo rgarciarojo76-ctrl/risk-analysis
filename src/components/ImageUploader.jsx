@@ -355,7 +355,7 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
                 id="btn_analizar"
                 onClick={handleAnalyze}
                 disabled={isAnalyzeLoading || !preview || !hasConsented}
-                className={`analyze-btn ${isAnalyzeLoading || !preview || !hasConsented ? 'disabled' : ''}`}
+                className={`analyze-btn-premium ${isAnalyzeLoading || !preview || !hasConsented ? 'disabled' : ''}`}
             >
                 {isAnalyzeLoading ? (
                     <>

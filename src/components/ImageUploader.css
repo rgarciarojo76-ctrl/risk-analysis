@@ -231,7 +231,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.drop-zone.has-image~.analyze-btn {
+.drop-zone.has-image~.analyze-btn-premium {
     position: absolute;
     bottom: 1rem;
     left: 1rem;
@@ -289,7 +289,8 @@
 
 /* --- ANALYZE BUTTON (CTA) --- */
 /* --- ANALYZE BUTTON (CTA) --- */
-.analyze-btn {
+/* --- ANALYZE BUTTON (CTA) --- */
+.analyze-btn-premium {
     height: 54px;
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     /* Clean vibrant blue */
@@ -316,7 +317,7 @@
 }
 
 /* Subtle shine animation overlay */
-.analyze-btn::after {
+.analyze-btn-premium::after {
     content: '';
     position: absolute;
     top: 0;
@@ -327,24 +328,24 @@
     transition: left 0.5s ease;
 }
 
-.analyze-btn:hover:not(.disabled) {
+.analyze-btn-premium:hover:not(.disabled) {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
     /* Brighter on hover */
 }
 
-.analyze-btn:hover:not(.disabled)::after {
+.analyze-btn-premium:hover:not(.disabled)::after {
     left: 100%;
     /* Shine passes through */
 }
 
-.analyze-btn:active:not(.disabled) {
+.analyze-btn-premium:active:not(.disabled) {
     transform: translateY(0);
     box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
 }
 
-.analyze-btn.disabled {
+.analyze-btn-premium.disabled {
     background: rgba(226, 232, 240, 0.5);
     /* Glassy gray */
     color: #cbd5e1;
