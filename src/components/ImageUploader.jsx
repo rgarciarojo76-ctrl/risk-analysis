@@ -225,7 +225,7 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
                 onClick={() => document.getElementById('img_subida').click()}
-                style={{ position: 'relative' }} // Ensure overlay positioning context
+                style={{ position: 'relative' }}
             >
                 {preview ? (
                     <div className="image-wrapper" style={{ position: 'relative', width: 'fit-content', height: 'fit-content', maxWidth: '100%', maxHeight: '100%', display: 'flex' }}>
@@ -234,68 +234,40 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
                             alt="Vista previa"
                             className="preview-image"
                             id="img_subida_preview"
-                            style={{
-                                width: 'auto',
-                                height: 'auto',
-                                maxWidth: '100%',
-                                maxHeight: '100%',
-                                display: 'block'
-                            }}
                         />
                         {renderOverlay()}
                     </div>
                 ) : (
                     <div className="upload-prompt">
-                        <Upload size={48} className="upload-icon" />
-                        <p>Arrastre imagen aquí o haga clic para subir</p>
-                        <span className="file-types">JPG, PNG</span>
+                        <div className="icon-circle">
+                            <Upload size={32} strokeWidth={1.5} color="#2563eb" />
+                        </div>
+                        <h3 className="upload-title">Subir Imagen del Entorno</h3>
+                        <p className="upload-subtitle">Arrastra tu archivo aquí o selecciona una opción</p>
+                        <span className="file-types">Soporta: JPG, PNG (Max 10MB)</span>
 
-                        <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                        <div className="upload-actions">
                             <button
                                 type="button"
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    background: 'white',
-                                    color: '#2563eb',
-                                    border: '1px solid #2563eb',
-                                    padding: '8px 16px',
-                                    borderRadius: '20px',
-                                    cursor: 'pointer',
-                                    fontWeight: '500',
-                                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                                }}
+                                className="btn-secondary"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     document.getElementById('img_subida').click();
                                 }}
                             >
-                                <Upload size={18} />
-                                Subir Archivo
+                                <Upload size={16} />
+                                Seleccionar Archivo
                             </button>
 
                             <button
                                 type="button"
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    background: '#2563eb',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '8px 16px',
-                                    borderRadius: '20px',
-                                    cursor: 'pointer',
-                                    fontWeight: '500',
-                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                                }}
+                                className="btn-primary-soft"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     document.getElementById('camera_input').click();
                                 }}
                             >
-                                <Camera size={18} />
+                                <Camera size={16} />
                                 Usar Cámara
                             </button>
                         </div>
@@ -310,7 +282,6 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
                     className="file-input"
                 />
 
-                {/* Dedicated Camera Input */}
                 <input
                     type="file"
                     id="camera_input"
@@ -333,24 +304,17 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
                 )}
             </div>
 
-            {/* Assuming 'error' and 'hasConsented' are state variables defined elsewhere */}
-            {/* {error && (
-                <div className="error-message">
-                    {error}
-                </div>
-            )} */}
-
             {/* LOPD COMPLIANCE SECTION */}
-            <div className="lopd-consent-container" style={{ margin: '1rem 0', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '8px', backgroundColor: '#f8fafc' }}>
-                <label style={{ display: 'flex', alignItems: 'start', gap: '10px', cursor: 'pointer' }}>
+            <div className="lopd-card">
+                <label className="lopd-label">
                     <input
                         type="checkbox"
-                        // checked={hasConsented} // Assuming hasConsented state variable
-                        // onChange={(e) => setHasConsented(e.target.checked)} // Assuming setHasConsented state setter
-                        style={{ marginTop: '4px' }}
+                        checked={hasConsented}
+                        onChange={(e) => setHasConsented(e.target.checked)}
+                        className="lopd-checkbox"
                     />
-                    <span style={{ fontSize: '0.9rem', color: '#475569', textAlign: 'left' }}>
-                        <strong>Declaración de Responsabilidad:</strong> Certifico que tengo autorización para captar estas imágenes y que su uso es estrictamente profesional/laboral. Acepto que serán procesadas por sistemas de IA externos (Google Cloud) únicamente para fines de prevención de riesgos.
+                    <span className="lopd-text">
+                        <strong>Declaración de Responsabilidad:</strong> Certifico que tengo autorización para captar estas imágenes y que su uso es estrictamente profesional/laboral. Acepto el procesamiento externo por IA para fines de prevención.
                     </span>
                 </label>
             </div>
@@ -358,18 +322,18 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
             <button
                 id="btn_analizar"
                 onClick={handleAnalyze}
-                // disabled={isAnalyzeLoading || !preview || !hasConsented} // Assuming hasConsented state variable
-                className={`analyze-button ${isAnalyzeLoading || !preview /* || !hasConsented */ ? 'disabled' : ''}`}
+                disabled={isAnalyzeLoading || !preview || !hasConsented}
+                className={`analyze-btn ${isAnalyzeLoading || !preview || !hasConsented ? 'disabled' : ''}`}
             >
                 {isAnalyzeLoading ? (
                     <>
-                        <Loader2 className="spinner" size={18} />
-                        Analizando...
+                        <Loader2 className="spinner" size={20} />
+                        Procesando Análisis...
                     </>
                 ) : (
                     <>
-                        <Camera size={18} />
-                        Analizar Imagen
+                        <Camera size={20} />
+                        Iniciar Análisis de Riesgos
                     </>
                 )}
             </button>
