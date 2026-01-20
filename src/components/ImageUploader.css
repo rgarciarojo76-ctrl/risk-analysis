@@ -346,16 +346,17 @@
 }
 
 .analyze-btn-premium.disabled {
-    background: #e2e8f0;
-    /* Solid gray */
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    /* Premium Gray Gradient */
     color: #94a3b8;
-    /* Darker text */
     cursor: not-allowed;
-    box-shadow: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    /* Subtle 3D volume */
     transform: none;
     border: 1px solid #cbd5e1;
-    /* Visible border */
-    opacity: 0.8;
+    /* Subtle definition */
+    opacity: 1;
+    /* Fully visible structure */
 }
 
 .spinner {
