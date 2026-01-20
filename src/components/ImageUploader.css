@@ -345,11 +345,15 @@
 }
 
 .analyze-btn.disabled {
-    background: #e2e8f0;
-    color: #94a3b8;
+    background: rgba(226, 232, 240, 0.5);
+    /* Glassy gray */
+    color: #cbd5e1;
     cursor: not-allowed;
     box-shadow: none;
     transform: none;
+    border: 1px solid #e2e8f0;
+    /* Subtle border to define shape */
+    backdrop-filter: blur(4px);
 }
 
 .spinner {
