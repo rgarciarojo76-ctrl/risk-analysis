@@ -3,11 +3,12 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    /* Reduced from 1.5rem */
     padding: 1rem;
-    /* Reduced from 1.5rem */
     background: #ffffff;
-    overflow-y: auto;
+    overflow: hidden;
+    /* Prevent scroll */
+    position: relative;
+    /* Anchor for absolute controls */
 }
 
 /* --- PREMIUM DROP ZONE --- */
@@ -42,16 +43,19 @@
     transform: scale(0.99);
 }
 
+/* When image is loaded, take FULL space */
 .drop-zone.has-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     border: none;
     padding: 0;
-    background-color: #0f172a;
-    /* Slate 900 for image background */
-    box-shadow: var(--shadow-md);
-    flex-grow: 1;
-    /* Force image area to take available space */
-    min-height: 0;
-    /* Allow shrinking if needed */
+    margin: 0;
+    border-radius: 0;
+    background: #0f172a;
+    z-index: 0;
 }
 
 .file-input {
@@ -201,13 +205,48 @@
 }
 
 /* --- LOPD CONSENT CARD --- */
+/* --- LOPD CONSENT CARD (Float logic) --- */
+/* Default (No image): Stacked */
 .lopd-card {
     background: transparent;
     border: none;
-    padding: 0.5rem 0.25rem;
-    transition: all 0.2s ease;
-    margin-top: -0.5rem;
-    /* Pull closer to image */
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.drop-zone.has-image~.lopd-card {
+    position: absolute;
+    bottom: 74px;
+    /* Above the button */
+    left: 1rem;
+    right: 1rem;
+    background: rgba(15, 23, 42, 0.6);
+    /* Dark glass */
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.drop-zone.has-image~.analyze-btn {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    margin: 0;
+    z-index: 20;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.drop-zone.has-image~.lopd-card .lopd-text {
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.drop-zone.has-image~.lopd-card .lopd-text strong {
+    color: white;
 }
 
 .lopd-card:hover {

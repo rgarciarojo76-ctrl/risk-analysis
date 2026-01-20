@@ -101,7 +101,7 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
     };
 
     const handleFile = async (file) => {
-        if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+        if (file && file.type.startsWith('image/')) {
             try {
                 // 1. Start Anonymization
                 setIsAnonymizing(true);
@@ -346,7 +346,7 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
                         className="lopd-checkbox"
                     />
                     <span className="lopd-text">
-                        <strong>Declaración de Responsabilidad:</strong> Certifico que tengo autorización para captar estas imágenes y que su uso es estrictamente profesional/laboral. Acepto el procesamiento externo por IA para fines de prevención.
+                        <strong>Responsabilidad:</strong> Autorizo la captación y acepto el procesamiento IA preventivo. Certifico uso laboral.
                     </span>
                 </label>
             </div>
