@@ -33,9 +33,8 @@ export default async function handler(req, res) {
         }
         // --- END VALIDATION ---
 
-        // Use Imagen 4 Standard via Google Generative Language API
-        // Try with image first, if fails (e.g. not supported for user tier), fallback to text-only
-        let currentUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+        // Reverting to Imagen 3.0 as 4.0 does not reliably support Image-to-Image on this endpoint
+        let currentUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`;
 
         let currentRequestBody = {
             instances: [
