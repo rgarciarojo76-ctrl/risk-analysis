@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Upload, Camera, Loader2 } from 'lucide-react';
 import './ImageUploader.css';
 
@@ -8,6 +8,10 @@ import { anonymizeImage } from '../utils/faceAnonymizer';
 const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // Accepted 'risks' prop
     const [preview, setPreview] = useState(null);
     const [isAnalyzeLoading, setIsAnalyzeLoading] = useState(false);
+
+    useEffect(() => {
+        console.log("Risk Analysis UI v1.0.3 Loaded");
+    }, []);
     const [isAnonymizing, setIsAnonymizing] = useState(false); // New state for blurring
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
