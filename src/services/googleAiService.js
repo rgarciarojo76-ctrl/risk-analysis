@@ -13,25 +13,26 @@ FASE 1 · ANÁLISIS
 Identifica únicamente los factores de riesgo laborales OBJETIVAMENTE VISIBLES.
 Selecciona todas las medidas preventivas razonables (Técnicas, Equipos, Señalización, EPIs).
 
-FASE 2 · GENERACIÓN DE "dalle_prompt" (Descripción Visual Definitiva)
-El objetivo es generar una imagen que muestre CÓMO DEBERÍA QUEDAR la escena tras aplicar las medidas.
-Escribe un prompt en INGLÉS detallado y visual, como si describieras una fotografía ya terminada.
+FASE 2 · GENERACIÓN DE "dalle_prompt" (Descripción Visual Definitiva / DIGITAL TWIN)
+El objetivo es editar la imagen original para integrar las medidas, manteniendo la escena REAL (Digital Twin).
 
-ESTRUCTURA DEL PROMPT:
-1. "High quality photorealistic industrial photograph of..." (Describe el tipo de lugar: almacén, oficina, obra).
-2. "VISUAL CONTEXT": Describe la escena general (iluminación, colores principales, tipo de suelo/paredes) para mantener la coherencia con la imagen original.
-3. "SAFETY MEASURES APPLIED (KEY ELEMENTS)":
-   - Describe VISUALMENTE los elementos de seguridad que AHORA ESTÁN PRESENTES.
-   - NO digas "se debe instalar", di "there is a yellow guardrail installed at...".
-   - Ejemplo: "A bright yellow safety barrier is clearly visible blocking the drop-off edge."
-   - Ejemplo: "A standard green and white emergency exit sign is mounted above the door."
-   - Ejemplo: "The floor is clean and marked with yellow/black hazard tape."
-4. "ATMOSPHERE": "Professional, clean, safe working environment, 4k, sharp focus."
+Escribe un prompt en INGLÉS extremadamente preciso para un modelo Image-to-Image.
+DEBE EMPEZAR SIEMPRE ASÍ:
+"Photorealistic edit of the provided image. Maintain exact perspective, lighting, and original structure of the room/environment. INTEGRATE the following safety measures naturally:"
 
-IMPORTANTE PARA EL PROMPT:
-- Debe funcionar tanto para editar la foto original como para generar una nueva desde cero si falla la edición.
-- Por eso, la descripción debe ser completa y autosuficiente.
-- Describe la escena FINAL SEGURA, no el proceso de cambio.
+ESTRUCTURA OBLIGATORIA DEL PROMPT:
+1.  **Base Preservation**: "Keep the red doors, walls, and floor exactly as they are. Do not hallucinate new furniture. Keep the same camera angle." (Adapta esto a lo que veas en la foto: si hay puertas rojas, di que se mantengan).
+2.  **Safety Integration**: Describe CÓMO se ven las medidas ya instaladas.
+    -   NO: "Add a sign".
+    -   SÍ: "A green emergency exit sign is mounted above the door frame."
+    -   NO: "Clean the floor".
+    -   SÍ: "The floor is clear of obstacles, with visible black and yellow safety tape marking the walkway."
+3.  **Details**: "High fidelity, 8k, seamless blending, industrial safety standards."
+
+IMPORTANTE:
+- Tu prioridad es que el "dalle_prompt" obligue a la IA a respetar la foto fuente.
+- Si la foto tiene puertas rojas, menciónalas explícitamente en el prompt para "lockear" su apariencia.
+- Longitud máxima recomendada: 400-500 caracteres para asegurar que entra todo.
 
 FORMATO DE SALIDA (ESTRICTAMENTE JSON):
 Responde ÚNICAMENTE con un objeto JSON válido con la siguiente estructura:
@@ -48,10 +49,10 @@ Responde ÚNICAMENTE con un objeto JSON válido con la siguiente estructura:
       "grado_riesgo": "Trivial/Tolerable/Moderado/Importante/Intolerable",
       "plazo": "Inmediato/1 mes...",
       "coste_estimado": "€...",
-      "coordinates": [ymin, xmin, ymax, xmax] // Coordenadas 0-1000 (0,0=Top-Left, 1000,1000=Bottom-Right). Basado en imagen COMPLETA sin recortar.
+      "coordinates": [ymin, xmin, ymax, xmax] // Coordenadas 0-1000.
     }
   ],
-  "dalle_prompt": "El prompt en INGLÉS descrito arriba. Máximo 400 caracteres."
+  "dalle_prompt": "El prompt 'Digital Twin' descrito arriba."
 }
 `;
 

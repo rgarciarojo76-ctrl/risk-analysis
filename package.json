@@ -1,7 +1,7 @@
 {
   "name": "direccion-tecnica-risk-analysis",
   "private": true,
-  "version": "1.0.5",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "dev": "node scripts/validate-env.js && vite",
