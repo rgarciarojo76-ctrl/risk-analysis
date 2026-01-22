@@ -97,6 +97,10 @@
     display: flex;
     flex-direction: column;
     line-height: 1.3;
+    align-items: center;
+    /* Center horizontally in flex column */
+    text-align: center;
+    /* Center text lines */
 }
 
 .disclaimer-title {
@@ -286,8 +290,10 @@
     .status-disclaimer {
         max-width: 100%;
         width: 100%;
-        border-radius: 8px; /* Opcional: reducir radio en móvil si ocupa todo el ancho */
-        justify-content: center; /* Opcional: centrar en móvil */
+        border-radius: 8px;
+        /* Opcional: reducir radio en móvil si ocupa todo el ancho */
+        justify-content: center;
+        /* Opcional: centrar en móvil */
     }
 
     .header-actions {

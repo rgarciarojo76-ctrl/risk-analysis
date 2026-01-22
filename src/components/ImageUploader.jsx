@@ -10,7 +10,7 @@ const ImageUploader = ({ setUploadedImage, onAnalysisComplete, risks }) => { // 
     const [isAnalyzeLoading, setIsAnalyzeLoading] = useState(false);
 
     useEffect(() => {
-        console.log("Risk Analysis UI v1.0.3 Loaded");
+        console.log("Risk Analysis UI v1.0.4 Loaded");
     }, []);
     const [isAnonymizing, setIsAnonymizing] = useState(false); // New state for blurring
     const [loading, setLoading] = useState(false);
