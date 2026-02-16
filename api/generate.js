@@ -1,10 +1,23 @@
-
+// v2.0.0 — Gemini 2.0 Flash Image Generation — Replaces imagen-3.0-generate-001
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+const MAX_PROMPT_LENGTH = 5000;
+const MAX_IMAGE_SIZE_BYTES = 15 * 1024 * 1024;
+
 export default async function handler(req, res) {
+    // CORS
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
     if (req.method === 'OPTIONS') {
         res.status(200).end();
         return;
+    }
+
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
     try {
@@ -20,84 +33,108 @@ export default async function handler(req, res) {
         if (!prompt || typeof prompt !== 'string') {
             return res.status(400).json({ error: 'Invalid Prompt' });
         }
-
-        if (prompt.length > 5000) {
-            return res.status(400).json({ error: 'Prompt too long (Max 500 chars)' });
+        if (prompt.length > MAX_PROMPT_LENGTH) {
+            return res.status(400).json({ error: `Prompt too long (Max ${MAX_PROMPT_LENGTH} chars)` });
         }
-
-        if (imageBase64) {
-            // Approx check for crazy large payloads
-            if (imageBase64.length > 15 * 1024 * 1024) { // ~11MB limit
-                return res.status(413).json({ error: 'Reference Image too large' });
-            }
+        if (imageBase64 && imageBase64.length > MAX_IMAGE_SIZE_BYTES) {
+            return res.status(413).json({ error: 'Reference Image too large' });
         }
         // --- END VALIDATION ---
 
-        // Reverting to Imagen 3.0 as 4.0 does not reliably support Image-to-Image on this endpoint
-        let currentUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`;
+        // ========================================================
+        // MIGRATION: Imagen 3.0 predict → Gemini generateContent
+        // Using gemini-2.0-flash-exp with responseModalities: ["image", "text"]
+        // This model supports native image generation via generateContent.
+        // ========================================================
 
-        let currentRequestBody = {
-            instances: [
-                {
-                    prompt: `Photorealistic industrial safety visualization, high quality, 4k: ${prompt}`,
-                    image: imageBase64 ? { bytesBase64Encoded: imageBase64 } : undefined
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({
+            model: "gemini-2.0-flash-exp",
+            generationConfig: {
+                responseModalities: ["image", "text"],
+            },
+        });
+
+        // Build the content parts
+        const parts = [];
+
+        // If we have a reference image, include it for Image-to-Image editing
+        if (imageBase64) {
+            parts.push({
+                inlineData: {
+                    data: imageBase64,
+                    mimeType: "image/jpeg"
                 }
-            ],
-            parameters: {
-                sampleCount: 1
-                // aspectRatio: "4:3" // REMOVED: In Image-to-Image, the input image sets the AR. Forcing this causes errors.
-            }
-        };
-
-        const makeRequest = async (url, body) => {
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
             });
-            if (!res.ok) {
-                const errData = await res.json();
-                throw { status: res.status, data: errData };
-            }
-            return res.json();
-        };
+            parts.push({
+                text: `You are an industrial safety visualization expert. EDIT this photograph to apply the following safety measures. Keep the original scene structure (walls, doors, floor, camera angle) but VISIBLY ADD the safety equipment described. The result must look like a real photo with the safety measures installed.\n\nSafety measures to apply:\n${prompt}\n\nIMPORTANT: Generate ONE photorealistic image showing the scene AFTER the safety measures have been installed. The changes must be clearly visible.`
+            });
+        } else {
+            // Text-to-Image fallback
+            parts.push({
+                text: `Generate a photorealistic industrial safety scene photograph. High quality, 4k resolution.\n\nScene description:\n${prompt}`
+            });
+        }
 
-        let data;
+        console.log(`[Generate] Mode: ${imageBase64 ? 'Image-to-Image' : 'Text-to-Image'}, Prompt length: ${prompt.length}`);
+
+        // --- ATTEMPT 1: Primary model (gemini-2.0-flash-exp) ---
+        let imageData = null;
         try {
-            data = await makeRequest(currentUrl, currentRequestBody);
-        } catch (firstError) {
-            console.warn("First attempt (Image-to-Image) failed:", firstError.data?.error?.message);
+            const result = await model.generateContent(parts);
+            const response = result.response;
 
-            // Fallback: If error relates to "Image in input is not supported" or similar 400/404, try text-only
+            // Extract image from response candidates
+            if (response.candidates && response.candidates[0]?.content?.parts) {
+                for (const part of response.candidates[0].content.parts) {
+                    if (part.inlineData) {
+                        imageData = part.inlineData;
+                        break;
+                    }
+                }
+            }
+        } catch (primaryError) {
+            console.warn("[Generate] Primary model (gemini-2.0-flash-exp) failed:", primaryError.message);
+
+            // --- ATTEMPT 2: Retry with text-only if Image-to-Image failed ---
             if (imageBase64) {
-                console.log("Retrying with Text-to-Image fallback...");
-                currentRequestBody.instances[0].image = undefined; // Remove image
-                // Optional: Slightly adjust prompt to be more descriptive since we lost the reference image
-                currentRequestBody.instances[0].prompt = `Industrial safety scene, high quality, 4k. Context: ${prompt}`;
+                console.log("[Generate] Retrying as Text-to-Image (without reference image)...");
+                const textOnlyParts = [{
+                    text: `Generate a photorealistic industrial safety scene photograph showing: ${prompt}. High quality, 4k, professional safety standards.`
+                }];
 
                 try {
-                    data = await makeRequest(currentUrl, currentRequestBody);
-                } catch (secondError) {
-                    console.error('Fallback (Text-to-Image) also failed:', secondError.data);
-                    const errorMessage = secondError.data?.error?.message || JSON.stringify(secondError.data);
-                    throw new Error(`Imagen API Failed (Fallback): ${errorMessage}`);
+                    const retryResult = await model.generateContent(textOnlyParts);
+                    const retryResponse = retryResult.response;
+
+                    if (retryResponse.candidates && retryResponse.candidates[0]?.content?.parts) {
+                        for (const part of retryResponse.candidates[0].content.parts) {
+                            if (part.inlineData) {
+                                imageData = part.inlineData;
+                                break;
+                            }
+                        }
+                    }
+                } catch (retryError) {
+                    console.error("[Generate] Text-to-Image retry also failed:", retryError.message);
+                    throw new Error(`Image generation failed on both attempts: ${retryError.message}`);
                 }
             } else {
-                const errorMessage = firstError.data?.error?.message || JSON.stringify(firstError.data);
-                throw new Error(`Imagen API Failed: ${errorMessage}`);
+                throw primaryError;
             }
         }
 
-        if (data.predictions && data.predictions[0]?.bytesBase64Encoded) {
-            const base64Image = `data:image/jpeg;base64,${data.predictions[0].bytesBase64Encoded}`;
+        // --- RETURN RESULT ---
+        if (imageData) {
+            const base64Image = `data:${imageData.mimeType || 'image/png'};base64,${imageData.data}`;
+            console.log("[Generate] ✅ Image generated successfully");
             res.status(200).json({ image: base64Image });
         } else {
-            throw new Error('No image generated by provider');
+            throw new Error('Model returned no image data. The response may have been filtered by safety settings.');
         }
 
     } catch (error) {
-        console.error("Backend Generate Error:", error);
-        // Security: Do not leak stack
+        console.error("Backend Generate Error:", error.message);
         res.status(500).json({ error: error.message });
     }
 }
