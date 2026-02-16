@@ -43,13 +43,13 @@ export default async function handler(req, res) {
 
         // ========================================================
         // MIGRATION: Imagen 3.0 predict → Gemini generateContent
-        // Using gemini-2.0-flash-preview-image-generation with responseModalities: ["image", "text"]
+        // Using gemini-2.5-flash-image with responseModalities: ["image", "text"]
         // This model supports native image generation via generateContent.
         // ========================================================
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash-preview-image-generation",
+            model: "gemini-2.5-flash-image",
             generationConfig: {
                 responseModalities: ["image", "text"],
             },
@@ -78,7 +78,7 @@ export default async function handler(req, res) {
 
         console.log(`[Generate] Mode: ${imageBase64 ? 'Image-to-Image' : 'Text-to-Image'}, Prompt length: ${prompt.length}`);
 
-        // --- ATTEMPT 1: Primary model (gemini-2.0-flash-preview-image-generation) ---
+        // --- ATTEMPT 1: Primary model (gemini-2.5-flash-image) ---
         let imageData = null;
         try {
             const result = await model.generateContent(parts);
@@ -94,7 +94,7 @@ export default async function handler(req, res) {
                 }
             }
         } catch (primaryError) {
-            console.warn("[Generate] Primary model (gemini-2.0-flash-preview-image-generation) failed:", primaryError.message);
+            console.warn("[Generate] Primary model (gemini-2.5-flash-image) failed:", primaryError.message);
 
             // --- ATTEMPT 2: Retry with text-only if Image-to-Image failed ---
             if (imageBase64) {
